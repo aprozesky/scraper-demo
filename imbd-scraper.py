@@ -13,6 +13,7 @@ with sync_playwright() as pw:
     page = context.new_page()
 
     page.goto('https://www.imdb.com/search/title/?groups=top_1000&count=100&sort=user_rating,desc')
+    
     print('Loading full movie list...\n')
     # load complete movie list
     while True:
@@ -35,10 +36,8 @@ with sync_playwright() as pw:
     movie_page = context.new_page()
 
     movies_list = []
-    # counter = 1
-    counter = 501
-    # prev_save_point = 0
-    prev_save_point = 500
+    counter = 1
+    prev_save_point = 0
    
     for url in movie_urls[500:]:
         # go to each movie page, move around to ensure everything loads
@@ -62,8 +61,7 @@ with sync_playwright() as pw:
 
         title = movie_page.locator('span.hero__primary-text').all()[0].inner_text()
 
-        # print(f'{title} ({counter} of 1000 - {round(counter/1000*100, 2)}%)')
-        print(f'{title} ({counter} of 500 - {round(counter/500*100, 2)}%)')
+        print(f'{title} ({counter} of 1000 - {round(counter/1000*100, 2)}%)')
 
         subheading = movie_page.locator('ul.joVhBE').locator('li').all()
 
@@ -187,7 +185,7 @@ with sync_playwright() as pw:
                       'gross' : gross,
                       'awards_won' : awards_won,
                       'awards_nominated' : awards_nominated}
-        print(movie_data)
+
         counter += 1
         movies_list.append(movie_data)
         if len(movies_list) == SAVE_FREQ:
@@ -200,9 +198,6 @@ with sync_playwright() as pw:
 
     movie_page.close()
 
-new_save_point = prev_save_point + len(movies_list)
-file_name = f'imbd-top-movies-{prev_save_point+1}-{new_save_point}.csv'
-pd.DataFrame(movies_list).to_csv(file_name, index=False)
 
 # aggregate all files into one
 df_list = []
